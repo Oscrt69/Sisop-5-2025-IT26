@@ -4,8 +4,9 @@
 
 Nama | NRP
 --- | ---
-Amoes Noland | 5027231028
-Rafi' Afnaan Fathurrahman | 5027231040
+Azaria Raisssa Maulidinnisa | 5027231043
+Oscaryavat Viryavan | 5027231053
+Naufal Ardhana | 5027241118
 
 ## Daftar Isi
 
