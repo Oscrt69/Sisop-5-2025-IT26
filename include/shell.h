@@ -5,6 +5,7 @@
 
 void shell();
 void parseCommand(char *buf, char *cmd, char arg[2][64]);
+void executeCommand(char *cmd, char arg[2][64]);
 
 // Tambahkan fungsi bila perlu
 
