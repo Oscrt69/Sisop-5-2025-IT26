@@ -1,55 +1,57 @@
-#include "shell.h"
 #include "kernel.h"
+#include "std_lib.h"
 
-int main() {
-  clearScreen();
-  shell();
+// Deklarasi fungsi interrupt dari assembly kernel.asm
+extern unsigned short _interrupt(unsigned char int_num, unsigned short ax, unsigned short bx, unsigned short cx, unsigned short dx);
+
+// Wrapper fungsi interrupt agar sesuai prototype my_interrupt()
+unsigned short my_interrupt(unsigned char int_num, unsigned short ax, unsigned short bx, unsigned short cx, unsigned short dx) {
+    return _interrupt(int_num, ax, bx, cx, dx);
 }
 
-void printString(char *str)
-{
-  int i = 0;
-  while (str[i] != '\0') {
-    _interrupt(0x10, 0x0E00 + str[i], 0, 0, 0);
-    i++;
-  }
+// Fungsi clear screen pakai interrupt BIOS scroll seluruh layar
+void clearScreen() {
+    my_interrupt(0x10, 0x0600, 0x0700, 0x0000, 0x184F);
 }
 
-void readString(char *buf)
-{
-  int i = 0;
-  char ch;
-
-  while (1) {
-    ch = _interrupt(0x16, 0x0000, 0, 0, 0) & 0xFF;
-
-    if (ch == '\r') { 
-      buf[i] = '\0';
-      _interrupt(0x10, 0x0E00 + '\r', 0, 0, 0); 
-      _interrupt(0x10, 0x0E00 + '\n', 0, 0, 0);
-      break;
-    }
-    else if (ch == '\b') { 
-      if (i > 0) {
-        i--;
-        _interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
-        _interrupt(0x10, 0x0E00 + ' ', 0, 0, 0);
-        _interrupt(0x10, 0x0E00 + '\b', 0, 0, 0);
-      }
-    }
-    else {
-      buf[i] = ch;
-      _interrupt(0x10, 0x0E00 + ch, 0, 0, 0); 
-      i++;
-    }
-  }
+// Fungsi printChar yang memanggil interrupt 0x10 BIOS
+void printChar(char c) {
+    my_interrupt(0x10, 0x0E00 | c, 0x0007, 0, 0);
 }
 
-void clearScreen()
-{
-  int i;
-  for (i = 0; i < 80 * 25; i++) {
-    _putInMemory(0xB000, i * 2, ' ');     
-    _putInMemory(0xB000, i * 2 + 1, 0x07); 
-  }
+// Fungsi printString sederhana
+void printString(char* str) {
+    while (*str) {
+        printChar(*str++);
+    }
+}
+
+// Fungsi string compare yang mengembalikan 1 jika sama, 0 jika beda
+int mstrcmp(char* s1, char* s2) {
+    while (*s1 && *s2 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return (*s1 == '\0' && *s2 == '\0') ? 1 : 0;
+}
+
+// Fungsi clear buffer memory
+void clear(void* ptr, int size) {
+    char* p = (char*)ptr;
+    for (int i = 0; i < size; i++) {
+        p[i] = 0;
+    }
+}
+
+// Deklarasi fungsi shell yang kamu punya di shell.c
+extern void shell();
+
+void main() {
+    clearScreen();
+    printString("Welcome to EorzeOS Kernel!\r\n");
+
+    shell();
+
+    // Loop infinite jika shell keluar
+    while (1) {}
 }
