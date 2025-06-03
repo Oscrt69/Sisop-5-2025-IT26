@@ -1,254 +1,217 @@
 #include "std_lib.h"
 #include "kernel.h"
 
-// Fungsi interrupt dari kernel.asm
 extern unsigned short my_interrupt(unsigned char int_num, unsigned short ax, unsigned short bx, unsigned short cx, unsigned short dx);
 
-#define MAX_INPUT 128
-#define MAX_NAME 32
+#define INPUT_SIZE 128
+#define NAME_SIZE 32
 
-// Variabel global
-char userName[MAX_NAME] = "user";
-char grandCompanyTitle[16] = "";  // @Storm, @Serpent, @Flame, atau kosong
-byte textColor = 0x07;             // warna default putih (grey)
+char currentUser[NAME_SIZE] = "user";
+char companyTag[16] = "";
+byte currentColor = 0x07;
 
-// Daftar random yogurt replies
-char* yogurtReplies[] = {
-    "yo",
-    "ts unami gng </3",
-    "sygau",
-    "gurt",
-    "yosh",
-    "hakuna matata"
+char* yogurtPhrases[] = {
+    "yo", "ts unami gng </3", "sygau", "gurt", "yosh", "hakuna matata"
 };
-int yogurtCount = sizeof(yogurtReplies) / sizeof(char*);
+int yogurtTotal = sizeof(yogurtPhrases) / sizeof(char*);
 
-// Fungsi bantu print char dan string
-void printChar(char c) {
-    my_interrupt(0x10, 0x0E00 | c, textColor, 0, 0);
+void putChar(char c) {
+    my_interrupt(0x10, 0x0E00 | c, currentColor, 0, 0);
 }
 
-void printString(char* s) {
-    while (*s) {
-        printChar(*s++);
-    }
+void putString(char* str) {
+    while (*str) putChar(*str++);
 }
 
-// Clear layar dengan interrupt BIOS scroll
-void clearScreen() {
-    my_interrupt(0x10, 0x0600, 0x0700, 0x0000, 0x184F);
+void clear() {
+    my_interrupt(0x10, 0x0600, 0x0700, 0, 0x184F);
 }
 
-// Set warna teks terminal (AX=0x0B00 + color)
-void setTextColor(byte color) {
-    textColor = color;
+void setColor(byte color) {
+    currentColor = color;
     my_interrupt(0x10, 0x0B00 | color, 0, 0, 0);
 }
 
-// Membaca input string dengan echo, maksimal MAX_INPUT-1
-void readString(char* buf) {
+void inputLine(char* buffer) {
     int i = 0;
     char c;
-    while (i < MAX_INPUT - 1) {
+    while (i < INPUT_SIZE - 1) {
         unsigned short key = my_interrupt(0x16, 0, 0, 0, 0);
         c = key & 0xFF;
 
         if (c == '\r') {
-            buf[i] = 0;
-            printString("\r\n");
-            return;
-        } else if (c == 0x08) { // backspace
-            if (i > 0) {
-                i--;
-                printString("\b \b");
-            }
+            buffer[i] = 0;
+            putString("\r\n");
+            break;
+        } else if (c == 0x08 && i > 0) {
+            i--;
+            putString("\b \b");
         } else if (c >= 32 && c <= 126) {
-            buf[i++] = c;
-            printChar(c);
+            buffer[i++] = c;
+            putChar(c);
         }
     }
-    buf[i] = 0;
+    buffer[i] = 0;
 }
 
-// Fungsi strcmp custom (return 1 jika sama)
-int mstrcmp(char* s1, char* s2) {
-    while (*s1 && *s2) {
-        if (*s1 != *s2) return 0;
-        s1++; s2++;
+int stringsEqual(char* a, char* b) {
+    while (*a && *b) {
+        if (*a != *b) return 0;
+        a++; b++;
     }
-    return (*s1 == 0 && *s2 == 0);
+    return *a == 0 && *b == 0;
 }
 
-// Fungsi untuk parsing input menjadi kata pertama dan sisa (simple)
-void splitCommand(char* input, char* cmd, char* arg) {
-    int i = 0;
-    // Copy cmd sampai spasi atau null
-    while (input[i] && input[i] != ' ' && i < MAX_INPUT) {
+void parseCommand(char* input, char* cmd, char* args) {
+    int i = 0, j = 0;
+    while (input[i] && input[i] != ' ' && i < INPUT_SIZE - 1) {
         cmd[i] = input[i];
         i++;
     }
     cmd[i] = 0;
-    // Lewatkan spasi
-    int j = 0;
     while (input[i] == ' ') i++;
-    // Copy sisa ke arg
-    while (input[i] && j < MAX_INPUT - 1) {
-        arg[j++] = input[i++];
+    while (input[i] && j < INPUT_SIZE - 1) {
+        args[j++] = input[i++];
     }
-    arg[j] = 0;
+    args[j] = 0;
 }
 
-// Parsing dua arg integer untuk kalkulator
-int parseTwoInts(char* arg, int* x, int* y) {
-    // Contoh input: "4 2"
-    int i = 0;
-    char num1[32] = {0};
-    char num2[32] = {0};
-    int idx = 0;
+int getTwoNumbers(char* args, int* a, int* b) {
+    int i = 0, k = 0;
+    char buf1[32] = {0}, buf2[32] = {0};
 
-    // Ambil angka pertama
-    while (arg[i] && arg[i] != ' ') {
-        if (idx >= 31) return 0;
-        num1[idx++] = arg[i++];
+    while (args[i] && args[i] != ' ') {
+        if (k >= 31) return 0;
+        buf1[k++] = args[i++];
     }
-    num1[idx] = 0;
-    while (arg[i] == ' ') i++;
-    idx = 0;
-    // Ambil angka kedua
-    while (arg[i]) {
-        if (idx >= 31) return 0;
-        num2[idx++] = arg[i++];
+    buf1[k] = 0;
+    while (args[i] == ' ') i++;
+    k = 0;
+    while (args[i] && k < 31) {
+        buf2[k++] = args[i++];
     }
-    num2[idx] = 0;
+    buf2[k] = 0;
 
-    if (!num1[0] || !num2[0]) return 0;
-    // Konversi ke int
-    *x = atoi(num1);
-    *y = atoi(num2);
+    if (!buf1[0] || !buf2[0]) return 0;
+    *a = atoi(buf1);
+    *b = atoi(buf2);
     return 1;
 }
 
-// Fungsi utama shell
+void showHelp() {
+    putString("Daftar perintah:\r\n");
+    putString("help                  : Bantuan\r\n");
+    putString("user <nama>           : Ganti username\r\n");
+    putString("user                  : Reset username\r\n");
+    putString("grandcompany <nama>   : Ganti company\r\n");
+    putString("clear                 : Hapus layar\r\n");
+    putString("add/sub/mul/div x y   : Kalkulator\r\n");
+    putString("yogurt                : Respon acak\r\n");
+    putString("exit                  : Keluar shell\r\n");
+}
+
 void shell() {
-    char input[MAX_INPUT];
-    char cmd[32], arg[MAX_INPUT];
-    int running = 1;
+    char input[INPUT_SIZE], command[32], args[INPUT_SIZE];
+    int aktif = 1;
 
-    printString("EorzeOS Shell v1.0\r\n");
-    printString("Ketik 'help' untuk daftar perintah.\r\n");
+    putString("Selamat datang di EorzeOS\r\n");
+    putString("Ketik 'help' untuk bantuan\r\n");
 
-    while (running) {
-        // Print prompt: userName + grandCompanyTitle + "> "
-        printString(userName);
-        if (grandCompanyTitle[0]) {
-            printChar('@');
-            printString(grandCompanyTitle);
+    while (aktif) {
+        putString(currentUser);
+        if (companyTag[0]) {
+            putChar('@');
+            putString(companyTag);
         }
-        printString("> ");
+        putString("> ");
 
-        readString(input);
-        splitCommand(input, cmd, arg);
+        inputLine(input);
+        parseCommand(input, command, args);
 
-        if (mstrcmp(cmd, "help")) {
-            printString("Perintah yang tersedia:\r\n");
-            printString("help                 : Tampilkan bantuan\r\n");
-            printString("user <username>      : Ganti username\r\n");
-            printString("user                 : Reset username ke 'user'\r\n");
-            printString("grandcompany <name>  : Ganti warna dan company\r\n");
-            printString("clear                : Bersihkan layar, reset warna\r\n");
-            printString("add <x> <y>          : Hitung x + y\r\n");
-            printString("sub <x> <y>          : Hitung x - y\r\n");
-            printString("mul <x> <y>          : Hitung x * y\r\n");
-            printString("div <x> <y>          : Hitung x / y\r\n");
-            printString("yogurt               : Random kata yogurt\r\n");
-            printString("exit                 : Keluar shell\r\n");
-        } 
-        else if (mstrcmp(cmd, "clear")) {
-            clearScreen();
-            setTextColor(0x07);
-            grandCompanyTitle[0] = 0;
+        if (stringsEqual(command, "help")) {
+            showHelp();
         }
-        else if (mstrcmp(cmd, "exit")) {
-            printString("Keluar shell...\r\n");
-            running = 0;
+        else if (stringsEqual(command, "clear")) {
+            clear();
+            setColor(0x07);
+            companyTag[0] = 0;
         }
-        else if (mstrcmp(cmd, "user")) {
-            if (arg[0] == 0) {
-                // Reset ke default
-                strcpy(userName, "user");
-                printString("Username changed to user\r\n");
+        else if (stringsEqual(command, "exit")) {
+            putString("Keluar dari shell...\r\n");
+            aktif = 0;
+        }
+        else if (stringsEqual(command, "user")) {
+            if (args[0] == 0) {
+                strcpy(currentUser, "user");
+                putString("Username direset ke 'user'\r\n");
             } else {
-                // Ganti username
-                int len = 0;
-                while (arg[len] && len < MAX_NAME - 1) {
-                    userName[len] = arg[len];
-                    len++;
+                int i = 0;
+                while (args[i] && i < NAME_SIZE - 1) {
+                    currentUser[i] = args[i];
+                    i++;
                 }
-                userName[len] = 0;
-                printString("Username changed to ");
-                printString(userName);
-                printString("\r\n");
+                currentUser[i] = 0;
+                putString("Username diganti ke ");
+                putString(currentUser);
+                putString("\r\n");
             }
         }
-        else if (mstrcmp(cmd, "grandcompany")) {
-            if (mstrcmp(arg, "maelstrom")) {
-                clearScreen();
-                setTextColor(0x04); // merah
-                strcpy(grandCompanyTitle, "Storm");
-            }
-            else if (mstrcmp(arg, "twinadder")) {
-                clearScreen();
-                setTextColor(0x0E); // kuning
-                strcpy(grandCompanyTitle, "Serpent");
-            }
-            else if (mstrcmp(arg, "immortalflames")) {
-                clearScreen();
-                setTextColor(0x01); // biru
-                strcpy(grandCompanyTitle, "Flame");
-            }
-            else if (arg[0] == 0 || mstrcmp(arg, "clear")) {
-                clearScreen();
-                setTextColor(0x07); // default putih
-                grandCompanyTitle[0] = 0;
-            }
-            else {
-                printString("Error: Unknown grandcompany name.\r\n");
+        else if (stringsEqual(command, "grandcompany")) {
+            if (stringsEqual(args, "maelstrom")) {
+                clear();
+                setColor(0x04);
+                strcpy(companyTag, "Storm");
+            } else if (stringsEqual(args, "twinadder")) {
+                clear();
+                setColor(0x0E);
+                strcpy(companyTag, "Serpent");
+            } else if (stringsEqual(args, "immortalflames")) {
+                clear();
+                setColor(0x01);
+                strcpy(companyTag, "Flame");
+            } else if (args[0] == 0 || stringsEqual(args, "clear")) {
+                clear();
+                setColor(0x07);
+                companyTag[0] = 0;
+            } else {
+                putString("Grand Company tidak dikenali\r\n");
             }
         }
-        else if (mstrcmp(cmd, "add") || mstrcmp(cmd, "sub") || mstrcmp(cmd, "mul") || mstrcmp(cmd, "div")) {
+        else if (stringsEqual(command, "add") || stringsEqual(command, "sub") ||
+                 stringsEqual(command, "mul") || stringsEqual(command, "div")) {
             int x, y;
-            if (!parseTwoInts(arg, &x, &y)) {
-                printString("Error: Invalid arguments\r\n");
+            if (!getTwoNumbers(args, &x, &y)) {
+                putString("Argumen salah\r\n");
                 continue;
             }
-            int res = 0;
-            if (mstrcmp(cmd, "add")) res = x + y;
-            else if (mstrcmp(cmd, "sub")) res = x - y;
-            else if (mstrcmp(cmd, "mul")) res = x * y;
-            else if (mstrcmp(cmd, "div")) {
+            int result = 0;
+            if (stringsEqual(command, "add")) result = x + y;
+            else if (stringsEqual(command, "sub")) result = x - y;
+            else if (stringsEqual(command, "mul")) result = x * y;
+            else if (stringsEqual(command, "div")) {
                 if (y == 0) {
-                    printString("Error: Division by zero\r\n");
+                    putString("Pembagian dengan nol\r\n");
                     continue;
                 }
-                res = x / y;
+                result = x / y;
             }
             char buf[32];
-            itoa(res, buf, 10);
-            printString(buf);
-            printString("\r\n");
+            itoa(result, buf, 10);
+            putString(buf);
+            putString("\r\n");
         }
-        else if (mstrcmp(cmd, "yogurt")) {
-            int r = (my_interrupt(0x2F, 0, 0, 0, 0) % yogurtCount); // random dengan interrupt 0x2F int 0 (bisa diganti sesuai implementasi)
-            printString(yogurtReplies[r]);
-            printString("\r\n");
+        else if (stringsEqual(command, "yogurt")) {
+            int idx = my_interrupt(0x2F, 0, 0, 0, 0) % yogurtTotal;
+            putString(yogurtPhrases[idx]);
+            putString("\r\n");
         }
-        else if (cmd[0] == 0) {
-            // kosong, input kosong, skip
+        else if (command[0] == 0) {
+            // input kosong
         }
         else {
-            // The Echo: print apa yang user ketik
-            printString(input);
-            printString("\r\n");
+            // The Echo
+            putString(input);
+            putString("\r\n");
         }
     }
 }
