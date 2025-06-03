@@ -1,68 +1,65 @@
+// std_lib.c
 #include "std_lib.h"
 
-// Fungsi pembagian bulat (integer division)
 int div(int a, int b) {
-    if (b == 0) return 0; // Hindari pembagian nol (bisa disesuaikan error handling)
+    int result = 0;
     int sign = 1;
-    if (a < 0) { sign = -sign; a = -a; }
-    if (b < 0) { sign = -sign; b = -b; }
-    int q = 0;
+    if (b == 0) return 0;
+
+    if (a < 0) { a = -a; sign *= -1; }
+    if (b < 0) { b = -b; sign *= -1; }
+
     while (a >= b) {
-        a = a - b;
-        q++;
+        a -= b;
+        result++;
     }
-    return sign * q;
+
+    return result * sign;
 }
 
-// Fungsi modulus (sisa bagi)
 int mod(int a, int b) {
-    if (b == 0) return 0; // Hindari modulus nol
-    int sign = 1;
-    if (a < 0) sign = -1;
-    if (b < 0) b = -b;
+    int sign = (a < 0) ? -1 : 1;
+    if (b == 0) return 0;
+
+    a = (a < 0) ? -a : a;
+    b = (b < 0) ? -b : b;
+
     while (a >= b) {
-        a = a - b;
+        a -= b;
     }
-    return sign * a;
+
+    return a * sign;
 }
 
-// Bandingkan dua string, return true jika sama, false jika beda
 bool strcmp(char *str1, char *str2) {
-    int i = 0;
-    while (str1[i] && str2[i]) {
-        if (str1[i] != str2[i]) return false;
-        i++;
+    while (*str1 && *str2) {
+        if (*str1 != *str2) return false;
+        str1++;
+        str2++;
     }
-    return str1[i] == str2[i];
+    return *str1 == *str2;
 }
 
-// Salin string src ke dst
 void strcpy(char *dst, char *src) {
-    int i = 0;
-    while ((dst[i] = src[i]) != 0) i++;
+    while (*src) {
+        *dst = *src;
+        dst++;
+        src++;
+    }
+    *dst = '\0';
 }
 
-// Isi buf dengan 0 sebanyak size bytes
 void clear(byte *buf, unsigned int size) {
-    for (unsigned int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
         buf[i] = 0;
     }
 }
 
-// Konversi string ke integer, simpan hasil di *num
-// Meng-handle angka negatif dan spasi awal
 void atoi(char *str, int *num) {
-    int i = 0;
-    int sign = 1;
-    int result = 0;
+    int i = 0, result = 0, sign = 1;
 
-    // Lewati spasi
-    while (str[i] == ' ') i++;
-
-    if (str[i] == '-') {
+    if (str[0] == '-') {
         sign = -1;
-        i++;
-    } else if (str[i] == '+') {
         i++;
     }
 
@@ -71,38 +68,35 @@ void atoi(char *str, int *num) {
         i++;
     }
 
-    *num = sign * result;
+    *num = result * sign;
 }
 
-// Konversi integer ke string (basis 10)
 void itoa(int num, char *str) {
-    char buf[12]; // buffer cukup untuk int
-    int i = 0, j;
-    int sign = 1;
-
+    int i = 0, isNegative = 0;
     if (num == 0) {
-        str[0] = '0';
-        str[1] = '\0';
+        str[i++] = '0';
+        str[i] = '\0';
         return;
     }
 
     if (num < 0) {
-        sign = -1;
+        isNegative = 1;
         num = -num;
     }
 
     while (num != 0) {
-        buf[i++] = (num % 10) + '0';
-        num = num / 10;
+        str[i++] = (num % 10) + '0';
+        num /= 10;
     }
 
-    if (sign == -1) {
-        buf[i++] = '-';
-    }
+    if (isNegative) str[i++] = '-';
 
-    // Balik string ke output
-    for (j = 0; j < i; j++) {
-        str[j] = buf[i - j - 1];
-    }
     str[i] = '\0';
+
+    // Reverse string
+    for (int j = 0, k = i - 1; j < k; j++, k--) {
+        char temp = str[j];
+        str[j] = str[k];
+        str[k] = temp;
+    }
 }
