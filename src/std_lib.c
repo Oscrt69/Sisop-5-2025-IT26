@@ -1,39 +1,31 @@
 #include "std_lib.h"
+#include "kernel.h"
 
-int div(int a, int b)
-{
-  //TODO: Implementasi pembagian
-  //NOTE: HARUS BISA ANGKA NEGATIF
+void printChar(char c) {
+    my_interrupt(0x10, 0x0E00 | c, 0x0007, 0, 0);
 }
 
-int mod(int a, int b)
-{
-  //TODO: Implementasi modulus
+void printString(char* str) {
+    while (*str) {
+        printChar(*str++);
+    }
 }
 
-bool strcmp(char *str1, char *str2)
-{
-  //TODO: Implementasi perbandingan string
+void clearScreen() {
+    my_interrupt(0x10, 0x0600, 0x0700, 0x0000, 0x184F);
 }
 
-void strcpy(char *dst, char *src)
-{
-  //TODO: Implementasi penyalinan string
+int mstrcmp(char* s1, char* s2) {
+    while (*s1 && *s2 && (*s1 == *s2)) {
+        s1++;
+        s2++;
+    }
+    return (*s1 == '\0' && *s2 == '\0') ? 1 : 0;
 }
 
-void clear(byte *buf, unsigned int size)
-{
-  //TODO: Implementasi pembersihan buffer
-}
-
-void atoi(char *str, int *num)
-{
-  //TODO: Implementasi konversi string ke integer
-  //NOTE: HARUS BISA ANGKA NEGATIF
-}
-
-void itoa(int num, char *str)
-{
-  //TODO: Implementasi konversi integer ke string
-  //NOTE: HARUS BISA ANGKA NEGATIF
+void clear(void* ptr, int size) {
+    char* p = (char*)ptr;
+    for (int i = 0; i < size; i++) {
+        p[i] = 0;
+    }
 }
