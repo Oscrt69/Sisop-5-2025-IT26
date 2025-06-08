@@ -205,3 +205,39 @@ https://github.com/user-attachments/assets/1cfa66b1-b2f5-4e3e-a4b2-ec8b012f6fbb
     ├── shell.c
     └── std_lib.c
 ```
+
+### no 1:
+
+<img src = "https://github.com/user-attachments/assets/6ad410ad-e9ce-4b89-ab2b-70e24df3b7f4" width = "500"> <br>
+
+
+### no 2:
+
+<img src = "https://github.com/user-attachments/assets/f49fcf3c-fe73-4696-8ec6-bbaa4894dafe" width = "500"> <br>
+
+
+### no 3:
+
+<img src = "https://github.com/user-attachments/assets/8e560c87-245b-492c-907b-f5828b9b33e6" width = "500"><br>
+
+
+### no 4:
+
+<img src = "https://github.com/user-attachments/assets/07e275aa-7a4f-43da-8fae-12730d0f0efe" width = "500">
+
+<https://github.com/user-attachments/assets/7d35a8f8-bd16-4c86-bcbc-e84d1ce36860)
+
+![sisop54biru](https://github.com/user-attachments/assets/d4828b7f-698b-457c-83b6-6c0b77c3ce46)
+
+
+### no 5:
+
+![sisop55](https://github.com/user-attachments/assets/02ed65e1-214d-435b-94e5-663e37186a0a)
+
+
+### no 6:
+
+![sisop56](https://github.com/user-attachments/assets/2db73d32-18d7-4568-9302-cd09ad564521)
+
+
+### no 7 (makefile):
