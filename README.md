@@ -223,11 +223,11 @@ https://github.com/user-attachments/assets/1cfa66b1-b2f5-4e3e-a4b2-ec8b012f6fbb
 
 ### no 4:
 
-<img src = "https://github.com/user-attachments/assets/07e275aa-7a4f-43da-8fae-12730d0f0efe" width = "500">
+<img src = "https://github.com/user-attachments/assets/07e275aa-7a4f-43da-8fae-12730d0f0efe" width = "500"> <br>
 
-<https://github.com/user-attachments/assets/7d35a8f8-bd16-4c86-bcbc-e84d1ce36860)
+<img src = "https://github.com/user-attachments/assets/7d35a8f8-bd16-4c86-bcbc-e84d1ce36860" width = "500"> <br>
 
-![sisop54biru](https://github.com/user-attachments/assets/d4828b7f-698b-457c-83b6-6c0b77c3ce46)
+<img src = "https://github.com/user-attachments/assets/d4828b7f-698b-457c-83b6-6c0b77c3ce46" width = "500"> <br>
 
 
 ### no 5:
