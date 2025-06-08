@@ -180,4 +180,28 @@ https://github.com/user-attachments/assets/1cfa66b1-b2f5-4e3e-a4b2-ec8b012f6fbb
 
 ## Laporan
 
-> Isi sesuai pengerjaan.
+### Struktur direktori.
+```
+.
+├── bin
+│   ├── bootloader.bin
+│   ├── floppy.img
+│   ├── kernel-asm.o
+│   ├── kernel.bin
+│   ├── kernel.o
+│   ├── shell.o
+│   └── std_lib.o
+├── bochsrc.txt
+├── include
+│   ├── kernel.h
+│   ├── shell.h
+│   ├── std_lib.h
+│   └── std_type.h
+├── makefile
+└── src
+    ├── bootloader.asm
+    ├── kernel.asm
+    ├── kernel.c
+    ├── shell.c
+    └── std_lib.c
+```
