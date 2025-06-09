@@ -208,15 +208,21 @@ https://github.com/user-attachments/assets/1cfa66b1-b2f5-4e3e-a4b2-ec8b012f6fbb
 
 ### no 1:
 
+Jika teks bukan merupakan sebuah command yang valid, akan menghasilkan output yang sama seperti inputnya.
+
 <img src = "https://github.com/user-attachments/assets/6ad410ad-e9ce-4b89-ab2b-70e24df3b7f4" width = "500"> <br>
 
 
 ### no 2:
 
+Jika input yo akan menghasilkan output gurt, dan sebaliknya jika input gurt akan menghasilkan output yo.
+
 <img src = "https://github.com/user-attachments/assets/f49fcf3c-fe73-4696-8ec6-bbaa4894dafe" width = "500"> <br>
 
 
 ### no 3:
+
+
 
 <img src = "https://github.com/user-attachments/assets/8e560c87-245b-492c-907b-f5828b9b33e6" width = "500"><br>
 
@@ -232,12 +238,11 @@ https://github.com/user-attachments/assets/1cfa66b1-b2f5-4e3e-a4b2-ec8b012f6fbb
 
 ### no 5:
 
-![sisop55](https://github.com/user-attachments/assets/02ed65e1-214d-435b-94e5-663e37186a0a)
-
+<img src = "https://github.com/user-attachments/assets/02ed65e1-214d-435b-94e5-663e37186a0a" width = "500"> <br>
 
 ### no 6:
 
-![sisop56](https://github.com/user-attachments/assets/2db73d32-18d7-4568-9302-cd09ad564521)
+<img src = "https://github.com/user-attachments/assets/2db73d32-18d7-4568-9302-cd09ad564521" width = "500"><br>
 
 
 ### no 7 (makefile):
