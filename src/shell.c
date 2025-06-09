@@ -12,7 +12,11 @@ void shell(){
   char arg[2][64];
   printString("This is IT-26 OS!\r\n");
   while (true) {
-    printString("> ");
+    char prompt[128];
+    strcpy(prompt, user);
+    strcat(prompt, host);
+    strcat(prompt, "> ");
+    printString(prompt);
     readString(buf);
     parseCommand(buf, cmd, arg);
     runCommand(cmd,buf,arg);    
