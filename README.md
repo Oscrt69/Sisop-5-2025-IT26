@@ -183,7 +183,7 @@ https://github.com/user-attachments/assets/1cfa66b1-b2f5-4e3e-a4b2-ec8b012f6fbb
 ### Struktur direktori.
 ```
 .
-├── bin
+├── bin                       ---> output 
 │   ├── bootloader.bin
 │   ├── floppy.img
 │   ├── kernel-asm.o
@@ -192,13 +192,13 @@ https://github.com/user-attachments/assets/1cfa66b1-b2f5-4e3e-a4b2-ec8b012f6fbb
 │   ├── shell.o
 │   └── std_lib.o
 ├── bochsrc.txt
-├── include
+├── include                    ---> header
 │   ├── kernel.h
 │   ├── shell.h
 │   ├── std_lib.h
 │   └── std_type.h
 ├── makefile
-└── src
+└── src                        ---> source code
     ├── bootloader.asm
     ├── kernel.asm
     ├── kernel.c
@@ -284,6 +284,7 @@ else if (strcmp(arg[0], "twinadder")) {
 Kode ini akan menghapus terminal dan mengubah warna teks menjadi biru.
 
 ```
+//shell.c
 else if (strcmp(arg[0], "immortalflames")) {       
           changeColor(0x09);   
           clearScreen(textColor);             
@@ -292,20 +293,77 @@ else if (strcmp(arg[0], "immortalflames")) {
 ```
 
 <img src = "https://github.com/user-attachments/assets/d4828b7f-698b-457c-83b6-6c0b77c3ce46" width = "500"> <br>
+Jika grandcompanny tidak salah satu diantara `Maelstrom, Twinadder, Immortalflames` atau kosongan akan menunjukkan error message.
 
 Selain mengubah seluruh warna terminal, username di dalam terminal akan diberikan tambahan nama judul sesuai Grand Companymasing-masing
-> Maelstrom = `user@Storm`
-> Twinadder = `user@Serpent`
-> Immortalflames = `user@Flame`
-> `clear` = menghapus nama grand company
+> Maelstrom = `user@Storm` <br>
+> Twinadder = `user@Serpent` <br>
+> Immortalflames = `user@Flame` <br>
+> `clear` = menghapus nama grand company <br>
 
 ### no 5:
+
+
 
 <img src = "https://github.com/user-attachments/assets/02ed65e1-214d-435b-94e5-663e37186a0a" width = "500"> <br>
 
 ### no 6:
 
+Ketika user mengetik 'yogurt', sistem akan menghasilkan output salah satu dari kata-kata berikut:
+> ts unami gng </3 <br>
+> yo<br>
+> sygau<br>
+
+
+```
+//shell.c
+id randomAnswer() {    
+    int r = mod(getBiosTick(),3);
+    if (r == 0) {
+        printString("ts unami gng </3\r\n");
+    } else if (r == 1) {
+        printString("yo\r\n");
+    } else {
+        printString("sygau\r\n");
+    }    
+```
+
+```
+//shell.c
+else if (strcmp(cmd, "yogurt")){
+      prompt("gurt");
+      randomAnswer();    
+    }
+```
+
+
+
 <img src = "https://github.com/user-attachments/assets/2db73d32-18d7-4568-9302-cd09ad564521" width = "500"><br>
 
 
 ### no 7 (makefile):
+```
+prepare:
+	dd if=/dev/zero of=bin/floppy.img bs=512 count=2880
+
+bootloader:
+	nasm -f bin src/bootloader.asm -o bin/bootloader.bin
+	dd if=bin/bootloader.bin of=bin/floppy.img bs=512 count=1 conv=notrunc
+
+stdlib:
+	bcc -ansi -Iinclude -c src/std_lib.c -o bin/std_lib.o
+
+shell:
+	bcc -ansi -Iinclude -c src/shell.c -o bin/shell.o
+
+kernel:
+	nasm -f as86 src/kernel.asm -o bin/kernel-asm.o
+	bcc -ansi -Iinclude -c src/kernel.c -o bin/kernel.o
+   
+link:
+	ld86 -o bin/kernel.bin -d bin/kernel.o bin/kernel-asm.o  bin/std_lib.o bin/shell.o
+	dd if=bin/kernel.bin of=bin/floppy.img bs=512 seek=1 conv=notrunc
+
+build: prepare bootloader stdlib shell kernel link
+```
+Makefile ini berbasis `floppy image`. Target prepare membuat file `floppy.img` kosong berukuran 1,44MB menggunakan `dd`. Target bootloader meng-assemble file `bootloader.asm` menggunakan nasm dan menulis hasilnya ke sektor pertama `floppy.img`. Target stdlib dan shell masing-masing meng-compile `std_lib.c` dan `shell.c` menjadi object file dengan `bcc`. Target kernel meng-assemble `kernel.asm` dan meng-compile `kernel.c` menjadi object file. Target link melakukan linking semua object file menjadi `kernel.bin` dan menyalinnya ke sektor berikutnya dari `floppy.img`. Akhirnya, target build menjalankan semua langkah di atas secara berurutan untuk membentuk floppy image yang siap dijalankan.
