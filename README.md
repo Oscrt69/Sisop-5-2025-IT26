@@ -210,12 +210,26 @@ https://github.com/user-attachments/assets/1cfa66b1-b2f5-4e3e-a4b2-ec8b012f6fbb
 
 Jika teks bukan merupakan sebuah command yang valid, akan menghasilkan output yang sama seperti inputnya.
 
+```
+//shell.c
+else {        
+    printString(buf);
+}
+```
 <img src = "https://github.com/user-attachments/assets/6ad410ad-e9ce-4b89-ab2b-70e24df3b7f4" width = "500"> <br>
-
 
 ### no 2:
 
 Jika input yo akan menghasilkan output gurt, dan sebaliknya jika input gurt akan menghasilkan output yo.
+
+```
+//shell.c
+if (strcmp(cmd, "yo")) {
+        printString("gurt\r\n");
+
+    } else if (strcmp(cmd, "gurt")) {
+        printString("yo\r\n");
+```
 
 <img src = "https://github.com/user-attachments/assets/f49fcf3c-fe73-4696-8ec6-bbaa4894dafe" width = "500"> <br>
 
