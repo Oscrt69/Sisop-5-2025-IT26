@@ -238,18 +238,66 @@ if (strcmp(cmd, "yo")) {
 
 Command user dan disusul nama spesifik akan mengubah username, jika hanya mengetik user, akan kembali ke default user.
 
+```
+//shell.c
+else if (strcmp(cmd, "user")) {
+        if (arg[0][0] == '\0') {
+            strcpy(user, "user");
+        } else {
+            strcpy(user, arg[0]);
+        }
+        printString("Username changed to ");
+        printString(user);
+        printString("\r\n");
+```
+
 <img src = "https://github.com/user-attachments/assets/8e560c87-245b-492c-907b-f5828b9b33e6" width = "500"><br>
 
 ### no 4:
 
-Kode ini akan mengubah warna menjadi
+Kode ini akan menghapus terminal dan mengubah warna teks menjadi merah.
+
+```
+//shell.c
+else if (strcmp(cmd, "grandcompany")) {        
+        if (strcmp(arg[0], "maelstrom")) {  
+          changeColor(0x0c);   
+          clearScreen(textColor);                       
+          strcpy(host, "@Storm");
+```
 
 <img src = "https://github.com/user-attachments/assets/07e275aa-7a4f-43da-8fae-12730d0f0efe" width = "500"> <br>
 
+Kode ini akan menghapus terminal dan mengubah warna teks menjadi kuning.
+
+```
+//shell.c
+else if (strcmp(arg[0], "twinadder")) {   
+          changeColor(0x0e);   
+          clearScreen(textColor);             
+          strcpy(host, "@Serpent");            
+        }
+```
+
 <img src = "https://github.com/user-attachments/assets/7d35a8f8-bd16-4c86-bcbc-e84d1ce36860" width = "500"> <br>
+
+Kode ini akan menghapus terminal dan mengubah warna teks menjadi biru.
+
+```
+else if (strcmp(arg[0], "immortalflames")) {       
+          changeColor(0x09);   
+          clearScreen(textColor);             
+          strcpy(host, "@Flame");                   
+        }
+```
 
 <img src = "https://github.com/user-attachments/assets/d4828b7f-698b-457c-83b6-6c0b77c3ce46" width = "500"> <br>
 
+Selain mengubah seluruh warna terminal, username di dalam terminal akan diberikan tambahan nama judul sesuai Grand Companymasing-masing
+> Maelstrom = `user@Storm`
+> Twinadder = `user@Serpent`
+> Immortalflames = `user@Flame`
+> `clear` = menghapus nama grand company
 
 ### no 5:
 
