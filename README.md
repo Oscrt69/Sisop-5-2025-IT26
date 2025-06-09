@@ -222,12 +222,13 @@ Jika input yo akan menghasilkan output gurt, dan sebaliknya jika input gurt akan
 
 ### no 3:
 
-
+Command user dan disusul nama spesifik akan mengubah username, jika hanya mengetik user, akan kembali ke default user.
 
 <img src = "https://github.com/user-attachments/assets/8e560c87-245b-492c-907b-f5828b9b33e6" width = "500"><br>
 
-
 ### no 4:
+
+Kode ini akan mengubah warna menjadi
 
 <img src = "https://github.com/user-attachments/assets/07e275aa-7a4f-43da-8fae-12730d0f0efe" width = "500"> <br>
 
